@@ -8,4 +8,10 @@ class DmozItem(scrapy.Item):
     link = scrapy.Field()
     desc = scrapy.Field()
     topics = scrapy.Field()
-    pass
+
+class DmozSiteItem(scrapy.Item):
+	url = scrapy.Field()
+	topics = scrapy.Field()
+	wordcounts = scrapy.Field()
+	words = scrapy.Field()
+	html = scrapy.Field()

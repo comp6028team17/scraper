@@ -7,9 +7,13 @@ from collections import Counter
 from scraper.items import DocumentItem
 import urllib
 import sys
+import string
 
 
 from HTMLParser import HTMLParser
+
+keep = "-"
+remove_chars = ''.join(ch for ch in string.punctuation if ch not in keep)
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -54,7 +58,13 @@ class DmozSpider(scrapy.Spider):
         to_extract = soup.findAll('script')
         for item in to_extract:
             item.extract()
-        words = [w.lower() for w in strip_tags(response.body).split()]
+        
+        stripped = strip_tags(response.body).lower()
+        for c in remove_chars:
+            stripped=stripped.replace(c,"")
+
+        words = stripped.split()
+        # TODO: unique words only?
 
         item = DocumentItem()
         item['url'] = response.url
@@ -65,6 +75,8 @@ class DmozSpider(scrapy.Spider):
         item['wordcounts'] = wordcounts
         item['html'] = response.body
         item['source'] = "dmoz"
+
+            
 
         return item
         

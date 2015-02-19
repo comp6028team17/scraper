@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import scrapy
+from scrapy import Field, Item
 
-
-class DmozItem(scrapy.Item):
-    title = scrapy.Field()
-    link = scrapy.Field()
-    desc = scrapy.Field()
-    topics = scrapy.Field()
-
-class DmozSiteItem(scrapy.Item):
-	url = scrapy.Field()
-	topics = scrapy.Field()
-	wordcounts = scrapy.Field()
-	words = scrapy.Field()
-	html = scrapy.Field()
+class DocumentItem(Item):
+	url = Field()
+	topics = Field()
+	hierarchy = Field() 
+	wordcounts = Field()
+	words = Field()
+	html = Field()

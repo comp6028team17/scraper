@@ -4,8 +4,9 @@ import re
 from bs4 import BeautifulSoup
 from collections import Counter
 
-from scraper.items import DmozItem, DmozSiteItem
+from scraper.items import DocumentItem
 import urllib
+import sys
 
 
 from HTMLParser import HTMLParser
@@ -26,13 +27,19 @@ def strip_tags(html):
 
 class DmozSpider(scrapy.Spider):
     name = "dmoz"
-    #allowed_domains = ["dmoz.org"]
     start_urls = [
         #"http://www.dmoz.org/Computers/Programming/Languages/Python/Web/Web_Frameworks/",
-        "http://www.dmoz.org/Computers/Programming/Languages/Python/",
+        #"http://www.dmoz.org/Computers/Programming/Languages/Python/",
         #"http://www.dmoz.org/Computers/Programming/Languages/Python/FAQs%2C_Help%2C_and_Tutorials/"
         #"http://www.dmoz.org/"
     ]
+
+    def __init__(self, topic="Computers/Programming/Languages/Python/Web/Web_Frameworks", *args, **kwargs): 
+        super(DmozSpider, self).__init__(*args, **kwargs) 
+        print "Spidering topic:" + topic
+        self.start_urls = ["http://www.dmoz.org/"+topic]
+        
+        #self.start_urls = [kwargs.get('start_url')] 
 
     def parse(self, response):
         topics = [urllib.unquote(x).decode('utf8').replace('_', ' ') for x in response.url.split("/")[3:-1]]
@@ -46,12 +53,6 @@ class DmozSpider(scrapy.Spider):
         
 
         for sel in response.xpath('//ul[@class="directory-url"]/li'):
-            # item = DmozItem()
-            # item['title'] = sel.xpath('a/text()').extract()
-            # item['link'] = sel.xpath('a/@href').extract()
-            # item['desc'] = [i for i in (s.strip() for s in sel.xpath('text()').extract()) if i]
-            # item['topics'] = topics
-            # yield item
             link = sel.xpath('a/@href').extract()[0]
             yield scrapy.Request(link, callback=self.parse_site, meta={'topics': topics})
 
@@ -60,13 +61,16 @@ class DmozSpider(scrapy.Spider):
         to_extract = soup.findAll('script')
         for item in to_extract:
             item.extract()
-        words = strip_tags(response.body).split()
+        words = [w.lower() for w in strip_tags(response.body).split()]
 
-        item = DmozSiteItem()
+        item = DocumentItem()
         item['url'] = response.url
         item['topics'] = response.meta['topics']
+        item['hierarchy'] = '.'.join(response.meta['topics'])
         item['words'] = words
-        item['wordcounts'] = Counter(words)
+        wordcounts = Counter(words)
+        item['wordcounts'] = [i for i in wordcounts.iteritems()]
+        item['wordcounts']
         item['html'] = response.body
 
         return item

@@ -27,19 +27,13 @@ def strip_tags(html):
 
 class DmozSpider(scrapy.Spider):
     name = "dmoz"
-    start_urls = [
-        #"http://www.dmoz.org/Computers/Programming/Languages/Python/Web/Web_Frameworks/",
-        #"http://www.dmoz.org/Computers/Programming/Languages/Python/",
-        #"http://www.dmoz.org/Computers/Programming/Languages/Python/FAQs%2C_Help%2C_and_Tutorials/"
-        #"http://www.dmoz.org/"
-    ]
 
     def __init__(self, topic="Computers/Programming/Languages/Python/Web/Web_Frameworks", *args, **kwargs): 
         super(DmozSpider, self).__init__(*args, **kwargs) 
-        print "Spidering topic:" + topic
-        self.start_urls = ["http://www.dmoz.org/"+topic]
         
-        #self.start_urls = [kwargs.get('start_url')] 
+        self.start_urls = ["http://www.dmoz.org/"+topic]
+
+        print "Spidering: "+self.start_urls[0]
 
     def parse(self, response):
         topics = [urllib.unquote(x).decode('utf8').replace('_', ' ') for x in response.url.split("/")[3:-1]]

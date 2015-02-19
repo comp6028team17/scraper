@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for scraperr project
+# Scrapy settings for scraper project
 #
 # For simplicity, this file contains only the most important settings by
 # default. All the other settings are documented here:

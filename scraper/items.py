@@ -10,3 +10,4 @@ class DocumentItem(Item):
 	wordcounts = Field()
 	words = Field()
 	html = Field()
+	source = Field()

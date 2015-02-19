@@ -34,7 +34,6 @@ class DmozSpider(scrapy.Spider):
         self.start_urls = ["http://www.dmoz.org/"+topic]
 
         print "Spidering: "+self.start_urls[0]
-
     def parse(self, response):
         topics = [urllib.unquote(x).decode('utf8').replace('_', ' ') for x in response.url.split("/")[3:-1]]
 
@@ -63,9 +62,9 @@ class DmozSpider(scrapy.Spider):
         item['hierarchy'] = '.'.join(response.meta['topics'])
         item['words'] = words
         wordcounts = Counter(words)
-        item['wordcounts'] = [i for i in wordcounts.iteritems()]
-        item['wordcounts']
+        item['wordcounts'] = wordcounts
         item['html'] = response.body
+        item['source'] = "dmoz"
 
         return item
         

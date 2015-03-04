@@ -7,7 +7,7 @@ import urllib2
 import urllib
 import sys
 import string
-
+import re
 
 from HTMLParser import HTMLParser
 
@@ -38,10 +38,10 @@ if __name__ == '__main__':
     for item in soup.findAll(text=lambda text:isinstance(text, Comment)):
         item.extract()
 
-    stripped = strip_tags(str(soup)).lower()
-
-    for c in remove_chars:
-        stripped=stripped.replace(c,"")
+    stripped = re.sub(r'[^A-Za-z0-9- ]|(\b[\d-]+\b)', '', strip_tags(str(soup)))
+    
+    #for c in remove_chars:
+    #    stripped=stripped.replace(c,"")
     
     words = stripped.split()
 

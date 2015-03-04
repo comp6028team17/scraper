@@ -21,3 +21,11 @@ Crawl the default heirarchy, output JSON-Lines:
 Crawl a custom heirarchy, output JSON-Lines:
 
 	$ scrapy crawl dmoz -o sites.jl -a topic="/Computers/Programming/"
+
+## Uploading to the database
+
+To upload each scraped item to the database one at a time, run sender.py:
+
+	$ ./python sender.py sites.jl
+
+	

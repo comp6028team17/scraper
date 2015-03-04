@@ -36,6 +36,7 @@ class DmozSpider(scrapy.Spider):
         super(DmozSpider, self).__init__(*args, **kwargs) 
         
         self.start_urls = ["http://www.dmoz.org/"+topic]
+        self.depth = depth
 
         print "Spidering: "+self.start_urls[0]
     def parse(self, response):
@@ -46,7 +47,7 @@ class DmozSpider(scrapy.Spider):
 
         xpaths = ['//ul[@class="directory dir-col"]/li', '//div[@class="one-third"]/span']
 
-        if response.meta['depth'] < depth:
+        if response.meta['depth'] < self.depth:
             for xp in xpaths:
                 for sel in response.xpath(xp):
                     link = "http://dmoz.org/"+sel.xpath('a/@href').extract()[0]
@@ -67,9 +68,8 @@ class DmozSpider(scrapy.Spider):
 
         stripped = strip_tags(str(soup))
 
-        for c in remove_chars:
-            stripped=stripped.replace(c,"")
-        
+        stripped = re.sub(r'[^A-Za-z0-9- ]|(\b[\d-]+\b)', '', stripped)
+
         words = stripped.split()
         # TODO: unique words only?
 

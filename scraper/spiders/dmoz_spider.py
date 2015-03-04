@@ -1,7 +1,7 @@
 import scrapy
 import re
 # -*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from collections import Counter
 
 from scraper.items import DocumentItem
@@ -32,37 +32,44 @@ def strip_tags(html):
 class DmozSpider(scrapy.Spider):
     name = "dmoz"
 
-    def __init__(self, topic="Computers/Programming/Languages/Python/Web/Web_Frameworks", *args, **kwargs): 
+    def __init__(self, topic="Computers/Programming/Languages/Python/Web", depth=2, *args, **kwargs): 
         super(DmozSpider, self).__init__(*args, **kwargs) 
         
         self.start_urls = ["http://www.dmoz.org/"+topic]
 
         print "Spidering: "+self.start_urls[0]
     def parse(self, response):
-        topics = [urllib.unquote(x).decode('utf8').replace('_', ' ') for x in response.url.split("/")[3:-1]]
+        if not 'depth' in response.meta:
+            response.meta['depth'] = 0
+
+        topics = [urllib.unquote(x).decode('utf8').replace('_', ' ').lower() for x in response.url.split("/")[3:-1]]
 
         xpaths = ['//ul[@class="directory dir-col"]/li', '//div[@class="one-third"]/span']
 
-        for xp in xpaths:
-            for sel in response.xpath(xp):
-                link = "http://dmoz.org/"+sel.xpath('a/@href').extract()[0]
-                yield scrapy.Request(link, callback = self.parse)
-        
+        if response.meta['depth'] < depth:
+            for xp in xpaths:
+                for sel in response.xpath(xp):
+                    link = "http://dmoz.org/"+sel.xpath('a/@href').extract()[0]
+                    yield scrapy.Request(link, callback = self.parse, meta = {'depth': response.meta['depth'] + 1})
 
-        for sel in response.xpath('//ul[@class="directory-url"]/li'):
+        for sel in response.xpath('//ul[@class="directory-url"]/li')[:10]:
             link = sel.xpath('a/@href').extract()[0]
             yield scrapy.Request(link, callback=self.parse_site, meta={'topics': topics})
 
     def parse_site(self, response):
-        soup = BeautifulSoup(response.body.lower())
-        to_extract = soup.findAll('script')
-        for item in to_extract:
-            item.extract()
         
-        stripped = strip_tags(response.body).lower()
+        soup = BeautifulSoup(response.body.lower()).body
+
+        for item in soup.findAll('script'):
+            item.extract()
+        for item in soup.findAll(text=lambda text:isinstance(text, Comment)):
+            item.extract()
+
+        stripped = strip_tags(str(soup))
+
         for c in remove_chars:
             stripped=stripped.replace(c,"")
-
+        
         words = stripped.split()
         # TODO: unique words only?
 
@@ -74,9 +81,14 @@ class DmozSpider(scrapy.Spider):
         wordcounts = Counter(words)
         item['wordcounts'] = wordcounts
         item['html'] = response.body
-        item['source'] = "dmoz"
-
-            
+        item['source'] = "dmoz"            
 
         return item
+
+
+
+
+
+
+
         

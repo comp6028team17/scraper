@@ -14,11 +14,10 @@ This sets up the `scrapy` command, which is used to start and manage scrapy prog
 
 ## Usage Examples
 
-Crawl the default heirarchy, output JSON: 
+Crawl the default heirarchy, output JSON-Lines: 
 
-	$ scrapy crawl dmoz -o sites5.json
+	$ scrapy crawl dmoz -o sites5.jl
 
-Crawl a custom heirarchy, output JSON:
+Crawl a custom heirarchy, output JSON-Lines:
 
-	$ scrapy crawl dmoz -o sites.json -a topic="/Computers/Programming/"
-
+	$ scrapy crawl dmoz -o sites.jl -a topic="/Computers/Programming/"

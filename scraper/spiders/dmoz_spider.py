@@ -63,6 +63,8 @@ class DmozSpider(scrapy.Spider):
 
         for item in soup.findAll('script'):
             item.extract()
+        for item in soup.findAll('style'):
+            item.extract()
         for item in soup.findAll(text=lambda text:isinstance(text, Comment)):
             item.extract()
 
